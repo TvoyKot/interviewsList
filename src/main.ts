@@ -14,6 +14,7 @@ import Toast from 'primevue/toast';
 import ToastService from 'primevue/toastservice'
 import Button from 'primevue/button'
 import ProgressSpinner from 'primevue/progressspinner';
+import Card from 'primevue/card';
 
 import App from './App.vue'
 import router from './router'
@@ -42,5 +43,6 @@ app.component('app-input-text', InputText)
 app.component('app-toast', Toast)
 app.component('app-button', Button)
 app.component('app-progress-spinner', ProgressSpinner)
+app.component('app-card', Card)
 
 app.mount('#app')
