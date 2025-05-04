@@ -6,10 +6,10 @@ import {
   doc,
   getDoc,
   updateDoc,
+  Timestamp,
 } from 'firebase/firestore'
 import { useUserStore } from '@/stores/user'
 import type { IInterview, IStage } from '@/interfaces'
-import dayjs from 'dayjs'
 
 const db = getFirestore()
 const userStore = useUserStore()
@@ -26,7 +26,21 @@ const docref = doc(
 const getData = async (): Promise<void> => {
   isLoading.value = true
   const docSnap = await getDoc(docref)
-  interview.value = docSnap.data() as IInterview
+  if (docSnap.exists()) {
+    const data = docSnap.data() as IInterview
+    if (data.stages && data.stages.length) {
+      data.stages = data.stages.map((stage: IStage) => {
+        if (stage.date && stage.date instanceof Timestamp) {
+          return {
+            ...stage,
+            date: stage.date.toDate(),
+          }
+        }
+        return stage
+      })
+    }
+    interview.value = data
+  }
   isLoading.value = false
 }
 
@@ -37,7 +51,7 @@ const addStage = () => {
     }
     interview.value.stages.push({
       name: '',
-      date: '',
+      date: null,
       description: '',
     })
   }
@@ -56,16 +70,6 @@ const saveInterview = async (): Promise<void> => {
   isLoading.value = false
 }
 
-const saveDateStage = (index: number) => {
-  if (
-    interview.value?.stages &&
-    interview.value.stages.length
-  ) {
-    const date = interview.value.stages[index].date
-    interview.value.stages[index].date = dayjs(date).format('DD.MM.YYYY')
-  }
-}
-
 onMounted(async () => {
   await getData()
 })
@@ -79,7 +83,6 @@ onMounted(async () => {
     class="content-interview"
     v-else-if="interview?.id && !isLoading"
   >
-    {{ interview }}
     <app-card>
       <template #title>
         Собеседование в компанию
@@ -214,7 +217,6 @@ onMounted(async () => {
                   dateFormat="dd/mm/yy"
                   :id="`stage-date-${index}`"
                   class="w-full mb-2"
-                  @date-select="saveDateStage(index)"
                   v-model="stage.date"
                 >
                   ></app-calendar

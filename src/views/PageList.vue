@@ -110,11 +110,11 @@ onMounted(async () => {
         <app-column field="vacancyLink" header="Вакансия">
           <template #body="slotProps">
             <a
-              href="https://{{slotProps.data.vacancyLink}}"
+              :href="`https://${slotProps.data.vacancyLink}`"
               target="_blank"
               class="vacancy__link"
             >
-              {{ slotProps.data.vacancyLink }}
+              Ссылка на вакансию
             </a>
           </template>
         </app-column>
@@ -151,6 +151,40 @@ onMounted(async () => {
                   class="contacts__icon pi pi-phone"
                 ></span
               ></a>
+            </div>
+          </template>
+        </app-column>
+        <app-column
+          field="salaryFrom"
+          header="Зарплатная вилка"
+        >
+          <template #body="slotProps">
+            <span v-if="!slotProps.data.salaryFrom"
+              >Данные не указаны</span
+            >
+            <span v-else
+              >{{ slotProps.data.salaryFrom }} -
+              {{ slotProps.data.salaryTo }}</span
+            >
+          </template>
+        </app-column>
+        <app-column
+          field="stages"
+          header="Пройденные этапы"
+        >
+          <template #body="slotProps">
+            <span v-if="!slotProps.data.stages"
+              >Данные не указаны</span
+            >
+            <div v-else class="interview-stages">
+              <app-badge
+                v-for="(stage, i) in slotProps.data.stages"
+                :key="i"
+                :value="i + 1"
+                rounded
+                severity="info"
+                v-tooltip.top="stage.name"
+              ></app-badge>
             </div>
           </template>
         </app-column>
@@ -205,5 +239,9 @@ onMounted(async () => {
 .buttons {
   display: flex;
   gap: 10px;
+}
+.interview-stages {
+  display: flex;
+  gap: 5px;
 }
 </style>

@@ -25,6 +25,9 @@ import FloatLabel from 'primevue/floatlabel';
 import Textarea from 'primevue/textarea';
 import DatePicker from 'primevue/datepicker';
 import RadioButton from 'primevue/radiobutton';
+import Badge from 'primevue/badge';
+import OverlayBadge from 'primevue/overlaybadge';
+import Tooltip from 'primevue/tooltip';
 
 
 
@@ -51,6 +54,7 @@ app.use(PrimeVue, {
     preset: Aura,
   },
 })
+app.directive('tooltip', Tooltip)
 app.component('app-menubar', Menubar)
 app.component('app-input-text', InputText)
 app.component('app-input-number', InputNumber)
@@ -66,4 +70,6 @@ app.component('app-message', Message)
 app.component('app-float-label', FloatLabel)
 app.component('app-textarea', Textarea)
 app.component('app-calendar', DatePicker)
+app.component('app-badge', Badge)
+app.component('app-overlay-badge', OverlayBadge)
 app.mount('#app')
