@@ -8,6 +8,7 @@ import {
   getDocs,
   deleteDoc,
   doc,
+  where,
 } from 'firebase/firestore'
 import { useUserStore } from '@/stores/user'
 import type { IInterview } from '@/interfaces'
@@ -21,14 +22,47 @@ const userStore = useUserStore()
 
 const interviews = ref<IInterview[]>([])
 const isLoading = ref<boolean>(false)
+const selectedFilterResult = ref<string>('')
 
-const getAllInterviews = async <
-  T extends IInterview,
->(): Promise<T[]> => {
-  const getData = query(
-    collection(db, `users/${userStore.userId}/interviews`),
-    orderBy('createdAt', 'desc'),
-  )
+
+const submitFilter = async (): Promise<void> => {
+  isLoading.value = true
+  const listInterviews: Array<IInterview> =
+    await getAllInterviews(true)
+  interviews.value = listInterviews
+  isLoading.value = false
+}
+
+const clearFilter = async (): Promise<void> => {
+  isLoading.value = true
+  const listInterviews: Array<IInterview> =
+    await getAllInterviews()
+  interviews.value = listInterviews
+  isLoading.value = false
+}
+
+const getAllInterviews = async <T extends IInterview>(
+  isFilter?: boolean
+): Promise<T[]> => {
+  let getData
+  if (isFilter) {
+    getData = query(
+      collection(
+        db,
+        `users/${userStore.userId}/interviews`,
+      ),
+      orderBy('createdAt', 'desc'),
+      where('result', '==', selectedFilterResult.value),
+    )
+  } else {
+    getData = query(
+      collection(
+        db,
+        `users/${userStore.userId}/interviews`,
+      ),
+      orderBy('createdAt', 'desc'),
+    )
+  }
   const listDocs = await getDocs(getData)
   return listDocs.docs.map((doc) => doc.data() as T)
 }
@@ -82,7 +116,7 @@ onMounted(async () => {
   const listInterviews: Array<IInterview> =
     await getAllInterviews()
   interviews.value = [...listInterviews]
-})
+  })
 </script>
 <template>
   <app-dialog />
@@ -103,6 +137,40 @@ onMounted(async () => {
   </app-message>
   <div v-else>
     <h1>Список собеседований</h1>
+    <div class="flex align-items-center mb-5">
+      <div class="flex align-items-center mr-2">
+        <label for="interviewResult2">Отказ</label>
+        <app-radio-button
+          inputId="interviewResult2"
+          value="Refusal"
+          name="result"
+          class="ml-1"
+          v-model="selectedFilterResult"
+        />
+      </div>
+      <div class="flex align-items-center mr-2">
+        <label for="interviewResult2">Оффер</label>
+        <app-radio-button
+          inputId="interviewResult2"
+          value="Offer"
+          name="result"
+          class="ml-1"
+          v-model="selectedFilterResult"
+        />
+      </div>
+      <app-button
+        @click="submitFilter"
+        :disabled="!selectedFilterResult"
+        class="mr-2"
+        >Применить</app-button
+      >
+      <app-button
+      @click="clearFilter"
+        :disabled="!selectedFilterResult"
+        severity="danger"
+        >Сбросить</app-button
+      >
+    </div>
     <div>
       <app-datatable :value="interviews">
         <app-column field="company" header="Компания" />
@@ -186,6 +254,27 @@ onMounted(async () => {
                 v-tooltip.top="stage.name"
               ></app-badge>
             </div>
+          </template>
+        </app-column>
+        <app-column field="stages" header="Результат">
+          <template #body="slotProps">
+            <span v-if="!slotProps.data.result"
+              >Не заполнено</span
+            >
+            <template v-else>
+              <app-badge
+                :severity="
+                  slotProps.data.result == 'Offer'
+                    ? 'success'
+                    : 'warn'
+                "
+                :value="
+                  slotProps.data.result == 'Offer'
+                    ? 'Оффер'
+                    : 'Отказ'
+                "
+              />
+            </template>
           </template>
         </app-column>
         <app-column>

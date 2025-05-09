@@ -28,8 +28,7 @@ import RadioButton from 'primevue/radiobutton';
 import Badge from 'primevue/badge';
 import OverlayBadge from 'primevue/overlaybadge';
 import Tooltip from 'primevue/tooltip';
-
-
+import Chart from 'primevue/chart';
 
 import App from './App.vue'
 import router from './router'
@@ -72,4 +71,5 @@ app.component('app-textarea', Textarea)
 app.component('app-calendar', DatePicker)
 app.component('app-badge', Badge)
 app.component('app-overlay-badge', OverlayBadge)
+app.component('app-chart', Chart)
 app.mount('#app')
